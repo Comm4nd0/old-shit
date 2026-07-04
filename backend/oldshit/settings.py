@@ -1,11 +1,31 @@
-"""Django settings for the Old Shit backend (development defaults)."""
+"""Django settings for the Old Shit backend.
+
+Development works with no environment variables at all. In production
+(docker-compose.yml at the repo root) everything is driven by env vars.
+"""
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-old-shit-dev-key-change-me-before-deploying"
-DEBUG = True
-ALLOWED_HOSTS = ["*"]  # dev only: lets a phone on the LAN reach the API
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY", "django-insecure-old-shit-dev-key-change-me-before-deploying"
+)
+DEBUG = os.environ.get("DJANGO_DEBUG", "1").lower() not in ("0", "false", "no")
+# Dev default "*" lets a phone on the LAN reach the API; prod sets the real host.
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
+    if host.strip()
+]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+# Caddy terminates TLS and sets X-Forwarded-Proto; trust it so
+# request.build_absolute_uri() produces https:// media URLs.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -54,7 +74,7 @@ WSGI_APPLICATION = "oldshit.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": Path(os.environ.get("DJANGO_DB_PATH", BASE_DIR / "db.sqlite3")),
         # WAL: the nearby endpoint materializes Wikipedia rows on GET, so
         # concurrent readers must not block on the writer.
         "OPTIONS": {"init_command": "PRAGMA journal_mode=WAL;"},
@@ -73,7 +93,8 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 

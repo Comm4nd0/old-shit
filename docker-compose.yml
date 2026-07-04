@@ -1,0 +1,37 @@
+name: oldshit
+
+services:
+  api:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?put DJANGO_SECRET_KEY in .env}
+      DJANGO_DEBUG: "0"
+      DJANGO_ALLOWED_HOSTS: "${OLDSHIT_HOST:-oldshit.localhost},api,localhost"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "https://${OLDSHIT_HOST:-oldshit.localhost}"
+      DJANGO_DB_PATH: /data/db.sqlite3
+    volumes:
+      - db-data:/data
+      - media:/app/media
+      - static:/app/staticfiles
+    expose:
+      - "8000"
+
+  proxy:
+    build:
+      context: .
+      dockerfile: deploy/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      # The only published port. luma001's main Caddy reverse-proxies here.
+      - "127.0.0.1:${OLDSHIT_PORT:-8020}:80"
+    volumes:
+      - media:/srv/media:ro
+      - static:/srv/static:ro
+
+volumes:
+  db-data:
+  media:
+  static:

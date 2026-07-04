@@ -1,0 +1,15 @@
+# Add this block to luma001's main Caddyfile, then `caddy reload`
+# (or `docker exec <caddy> caddy reload --config /etc/caddy/Caddyfile`).
+#
+# Replace oldshit.example.com with the real subdomain (and point its DNS
+# at luma001). The app's compose stack publishes exactly one port,
+# 127.0.0.1:${OLDSHIT_PORT:-8020}, so this is all Caddy needs to know.
+#
+# If your main Caddy runs in Docker, 127.0.0.1 won't reach the host —
+# either attach the caddy container to this app's network and use
+# `reverse_proxy oldshit-proxy-1:80`, or publish the port on the Docker
+# bridge and proxy to host.docker.internal:8020.
+
+oldshit.example.com {
+	reverse_proxy 127.0.0.1:8020
+}

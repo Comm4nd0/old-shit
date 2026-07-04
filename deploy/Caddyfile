@@ -1,0 +1,29 @@
+# Internal Caddy for the Old Shit compose stack. Not the luma001 Caddyfile —
+# see deploy/luma001.Caddyfile for the block that goes there.
+:80 {
+	encode gzip
+
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+	handle /admin/* {
+		reverse_proxy api:8000
+	}
+
+	handle_path /media/* {
+		root * /srv/media
+		file_server
+	}
+	handle_path /static/* {
+		root * /srv/static
+		file_server
+	}
+
+	# Everything else is the Expo web build (static export with per-route
+	# HTML files; unknown paths fall back to the app shell).
+	handle {
+		root * /srv/web
+		try_files {path} {path}.html /index.html
+		file_server
+	}
+}

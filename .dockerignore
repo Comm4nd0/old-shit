@@ -1,0 +1,7 @@
+# Context for deploy/web.Dockerfile (repo root)
+.git/
+backend/
+scripts/
+mobile/node_modules/
+mobile/dist/
+mobile/.expo/

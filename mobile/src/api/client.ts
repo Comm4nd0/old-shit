@@ -1,4 +1,7 @@
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
+// "/" (or empty) means same-origin — used by the web build served
+// alongside the API in production.
+const rawBaseUrl = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
+const BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 
 export class ApiError extends Error {
   constructor(
