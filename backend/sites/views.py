@@ -107,7 +107,11 @@ class SiteCommentsView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Comment.objects.filter(site_id=self.kwargs["pk"]).select_related("user")
+        return (
+            Comment.objects.filter(site_id=self.kwargs["pk"])
+            .select_related("user")
+            .annotate(upvote_count=Count("votes", distinct=True))
+        )
 
     def perform_create(self, serializer):
         site = get_object_or_404(Site, pk=self.kwargs["pk"])

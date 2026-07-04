@@ -1,12 +1,17 @@
 import type {
+  ActivityEvent,
   Comment,
+  LeaderboardEntry,
   Paginated,
   RatingResult,
   SiteDetail,
   SitePhoto,
   SiteSummary,
+  UserProfile,
+  VisitResult,
+  VoteResult,
 } from '../types';
-import { get, post, postMultipart } from './client';
+import { del, get, post, postMultipart } from './client';
 
 export function fetchNearby(lat: number, lng: number, radius = 25, page = 1) {
   return get<Paginated<SiteSummary>>(
@@ -42,4 +47,28 @@ export function postRating(id: number, value: number) {
 
 export function postPhoto(id: number, form: FormData) {
   return postMultipart<SitePhoto>(`/api/sites/${id}/photos/`, form);
+}
+
+export function checkIn(id: number) {
+  return post<VisitResult>(`/api/sites/${id}/visits/`, {});
+}
+
+export function undoCheckIn(id: number) {
+  return del<VisitResult>(`/api/sites/${id}/visits/`);
+}
+
+export function voteComment(commentId: number) {
+  return post<VoteResult>(`/api/comments/${commentId}/vote/`, {});
+}
+
+export function fetchActivity() {
+  return get<{ results: ActivityEvent[] }>('/api/activity/');
+}
+
+export function fetchLeaderboard() {
+  return get<{ results: LeaderboardEntry[] }>('/api/leaderboard/');
+}
+
+export function fetchProfile(username: string) {
+  return get<UserProfile>(`/api/users/${encodeURIComponent(username)}/`);
 }

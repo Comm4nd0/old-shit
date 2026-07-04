@@ -63,7 +63,23 @@ old-shit/
 `Site` is the universe. It has coords, a description, an era string, optional
 `ticket_url`, and a `source` of either `curated` (seeded, funny, hand-written) or
 `wikipedia` (materialized at runtime). Users attach `Comment`s, `Rating`s (1–5, one per
-user per site, re-rating updates via `update_or_create`), and `SitePhoto`s.
+user per site, re-rating updates via `update_or_create`), `SitePhoto`s, `Visit`s
+(check-ins, one per user per site), and `CommentVote`s (upvotes, toggled).
+
+### The social layer
+
+- **Check-ins:** POST/DELETE `/api/sites/<pk>/visits/` — "I saw this old shit". Detail
+  responses carry `visit_count` / `visited_by_me`.
+- **Upvotes & top take:** POST `/api/comments/<pk>/vote/` toggles; the most-upvoted
+  comment (≥1 vote) is the site's `top_take`, shown as a card on the detail screen.
+- **Community screen** (`mobile/src/app/community.tsx`): `/api/activity/` (merged recent
+  visits/comments/photos) + `/api/leaderboard/` (users ranked by visits).
+- **Profiles:** `/api/users/<username>/` — stats incl. `years_of_old_shit`, the sum of
+  visited sites' ages parsed from `era` by `sites/era.py` (conservative parser: returns
+  None rather than guess; "Roman, c. 80 AD", "15th century", "3000 BC" all work).
+- **Sharing:** detail responses carry a server-built `share_url` pointing at the web app
+  (`/site/<id>`), used by the native Share sheet — shared links open in any browser
+  because the production stack serves the same-origin web build. That's the growth loop.
 
 ### The hybrid data strategy (the clever bit)
 
@@ -170,14 +186,14 @@ Roughly ordered by value-for-effort. Each respects the existing architecture.
 - **Distance-based push: "You are walking past old shit right now"** — background
   location + a geofence around high-rated sites. The killer feature for the wandering
   tourist. Needs battery care and an opt-in.
-- **Visited / want-to-visit lists** — a `Visit` model (user, site, visited_at, optional
-  note). Unlocks profiles, stats ("You have seen 43,000 combined years of old shit"), and
-  a personal map of conquered ruins.
+- **Want-to-visit list** — visited check-ins exist; add a `wishlist` flag (or a second
+  model) for "old shit I intend to see", plus a personal map of conquered ruins.
 - **Photo of the week** — lightweight moderation + a featured flag on `SitePhoto`;
   surfaces community content and gives people a reason to post good photos.
 - **Site "age receipts"** — every detail screen computes fun age comparisons from `era`:
   "This wall is 47× older than the United States" / "Built 1,200 years before the fork
-  was considered acceptable in Europe." Pure copy + a small parser; huge tone payoff.
+  was considered acceptable in Europe." The parser already exists (`sites/era.py`, built
+  for profile stats) — this is now pure copywriting.
 
 ### Medium-term
 - **Curated city packs** — hand-written walking routes ("Rome in one hungover morning":
@@ -191,10 +207,11 @@ Roughly ordered by value-for-effort. Each respects the existing architecture.
   pageid we already store. Structured `era` unlocks timelines and better age jokes.
 - **Eras & categories filter** — "only show me Roman shit" / castles / megaliths /
   "things older than agriculture". Add a `category` field + chips above the feed.
-- **Leaderboards & badges** — "Certified Ruin Enjoyer" (10 visits), "Older Than Dirt
-  Club" (5 prehistoric sites), "Column Connoisseur" (all Greek/Roman seeds). Cheap joy.
-- **Comment voting + "top take"** — one upvote model away; the funniest accurate comment
-  becomes the site's community subtitle.
+- **Badges** — the leaderboard exists; add "Certified Ruin Enjoyer" (10 visits), "Older
+  Than Dirt Club" (5 prehistoric sites), "Column Connoisseur" (all Greek/Roman seeds).
+  Cheap joy on top of the existing `Visit` data.
+- **Follow other ruin enjoyers** — a `Follow` model + a "people you follow" filter on
+  the activity feed; turns the community screen into a real social feed.
 - **i18n** — Wikipedia integration is language-parameterizable (`en.wikipedia.org` →
   per-locale); curated descriptions need human translation to keep the jokes funny.
 

@@ -19,6 +19,7 @@ import { BookTicketsButton } from '@/components/BookTicketsButton';
 import { CommentSection } from '@/components/CommentSection';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { RatingStars } from '@/components/RatingStars';
+import { SocialBar } from '@/components/SocialBar';
 import { SourceBadge } from '@/components/SourceBadge';
 import { copy } from '@/copy';
 import { colors, spacing } from '@/theme';
@@ -92,6 +93,26 @@ export default function SiteDetailScreen() {
 
         <BookTicketsButton url={site.ticket_url} kind={site.ticket_url_kind} />
 
+        <SocialBar
+          siteId={site.id}
+          siteName={site.name}
+          shareUrl={site.share_url}
+          initialVisited={site.visited_by_me}
+          initialVisitCount={site.visit_count}
+          loggedIn={username !== null}
+          onRequireLogin={requireLogin}
+        />
+
+        {site.top_take && (
+          <View style={styles.topTake}>
+            <Text style={styles.topTakeTitle}>🔥 {copy.topTakeTitle}</Text>
+            <Text style={styles.topTakeText}>“{site.top_take.text}”</Text>
+            <Text style={styles.topTakeAuthor}>
+              — {site.top_take.username}, ▲{site.top_take.upvotes}
+            </Text>
+          </View>
+        )}
+
         <RatingStars
           siteId={site.id}
           userRating={site.user_rating}
@@ -138,4 +159,15 @@ const styles = StyleSheet.create({
   place: { color: colors.faded, marginTop: 4 },
   description: { color: colors.ink, marginTop: spacing.lg, fontSize: 15, lineHeight: 23 },
   wikiLink: { color: colors.accentDark, marginTop: spacing.md, fontWeight: '600' },
+  topTake: {
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.gold,
+    borderRadius: 12,
+    padding: spacing.md,
+    marginTop: spacing.lg,
+  },
+  topTakeTitle: { fontWeight: '800', color: colors.gold, fontSize: 12 },
+  topTakeText: { color: colors.ink, marginTop: spacing.xs, fontStyle: 'italic', lineHeight: 20 },
+  topTakeAuthor: { color: colors.faded, marginTop: spacing.xs, fontSize: 12 },
 });

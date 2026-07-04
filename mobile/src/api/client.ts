@@ -52,6 +52,12 @@ export async function post<T>(path: string, body: unknown): Promise<T> {
   );
 }
 
+export async function del<T>(path: string): Promise<T> {
+  return handle<T>(
+    await fetch(`${BASE_URL}${path}`, { method: 'DELETE', headers: headers(false) })
+  );
+}
+
 export async function postMultipart<T>(path: string, form: FormData): Promise<T> {
   // No Content-Type header: fetch must set the multipart boundary itself.
   return handle<T>(

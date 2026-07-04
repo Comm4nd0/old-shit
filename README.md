@@ -13,6 +13,10 @@ entire family tree.
   disrespect) blended with live results from Wikipedia's GeoSearch API, so the feed works
   anywhere on Earth. Wikipedia results are cached server-side and clearly badged.
 - **Comments, ratings, photos** — sign up with a username and have opinions in public.
+- **Social** — check in ("I saw this old shit"), upvote the best takes (the winner becomes
+  the site's Top Take), climb the Ruin Enjoyers leaderboard, and show off a profile with
+  your combined years of old shit witnessed. Share any site as a link that opens in the
+  browser.
 - **Tickets** — curated sites link to the real official booking page; everything else gets an
   honest "find tours nearby" search link.
 
@@ -49,6 +53,11 @@ Tests: `.venv/bin/python manage.py test`  ·  Smoke: `./scripts/smoke.sh`
 | `GET/POST /api/sites/<id>/comments/` | POST: token | say things |
 | `POST /api/sites/<id>/ratings/` | token | `{value: 1-5}`, re-rating updates |
 | `GET/POST /api/sites/<id>/photos/` | POST: token | multipart `image` + `caption` |
+| `POST/DELETE /api/sites/<id>/visits/` | token | check in / un-check-in |
+| `POST /api/comments/<id>/vote/` | token | toggle an upvote |
+| `GET /api/activity/` | – | recent check-ins, takes, photos |
+| `GET /api/leaderboard/` | – | top ruin enjoyers by visits |
+| `GET /api/users/<username>/` | – | public profile + stats |
 
 ## Mobile — run it
 

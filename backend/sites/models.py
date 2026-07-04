@@ -63,6 +63,39 @@ class Rating(models.Model):
         return f"{self.value}★ for {self.site} by {self.user}"
 
 
+class Visit(models.Model):
+    """A check-in: 'I saw this old shit'. One per user per site."""
+
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="visits")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="visits"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["site", "user"], name="one_visit_per_user_per_site")
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} saw {self.site}"
+
+
+class CommentVote(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="votes")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["comment", "user"], name="one_vote_per_user_per_comment")
+        ]
+
+    def __str__(self):
+        return f"{self.user} upvoted comment {self.comment_id}"
+
+
 class SitePhoto(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="photos")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

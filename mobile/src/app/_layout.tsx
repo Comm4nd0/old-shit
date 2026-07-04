@@ -18,12 +18,14 @@ export default function RootLayout() {
       >
         <Stack.Screen name="index" options={{ title: copy.appName }} />
         <Stack.Screen name="search" options={{ title: copy.searchTitle }} />
+        <Stack.Screen name="community" options={{ title: copy.communityTitle }} />
         <Stack.Screen name="login" options={{ title: copy.loginTitle, presentation: 'modal' }} />
         <Stack.Screen
           name="register"
           options={{ title: copy.registerTitle, presentation: 'modal' }}
         />
         <Stack.Screen name="site/[id]" options={{ title: '' }} />
+        <Stack.Screen name="user/[username]" options={{ title: '' }} />
       </Stack>
     </AuthProvider>
   );

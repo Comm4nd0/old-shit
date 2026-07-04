@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Comment, Rating, Site, SitePhoto
+from .models import Comment, CommentVote, Rating, Site, SitePhoto, Visit
 
 
 @admin.register(Site)
@@ -24,3 +24,13 @@ class RatingAdmin(admin.ModelAdmin):
 @admin.register(SitePhoto)
 class SitePhotoAdmin(admin.ModelAdmin):
     list_display = ["site", "user", "caption", "created_at"]
+
+
+@admin.register(Visit)
+class VisitAdmin(admin.ModelAdmin):
+    list_display = ["site", "user", "created_at"]
+
+
+@admin.register(CommentVote)
+class CommentVoteAdmin(admin.ModelAdmin):
+    list_display = ["comment", "user", "created_at"]

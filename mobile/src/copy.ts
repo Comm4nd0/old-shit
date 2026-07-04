@@ -45,6 +45,29 @@ export const copy = {
   uploadPhotoButton: 'Post a photo',
   uploadCaptionPlaceholder: 'Caption (optional, wit encouraged)',
 
+  communityTitle: 'The Society of Ruin Enjoyers',
+  activityTitle: 'Recent expeditions',
+  activityEmpty: 'Nobody has seen any old shit yet. The history books are watching.',
+  leaderboardTitle: 'Top Ruin Enjoyers',
+  leaderboardEmpty: 'The leaderboard awaits its first conqueror of ruins.',
+  visitCountLabel: (n: number) =>
+    n === 0
+      ? 'Nobody has claimed this one yet'
+      : n === 1
+        ? 'Seen by 1 ruin enjoyer'
+        : `Seen by ${n} ruin enjoyers`,
+  checkInButton: 'I saw this old shit',
+  checkedInButton: '✓ You saw this old shit',
+  shareButton: 'Show someone this old shit',
+  shareMessage: (name: string, url: string) =>
+    `Look at this old shit: ${name}. ${url}`,
+  topTakeTitle: 'Top take',
+  profileYears: (years: number) =>
+    `${years.toLocaleString()} combined years of old shit witnessed`,
+  profileNoYears: 'Years of old shit witnessed: pending fieldwork',
+  profileVisitsTitle: 'Conquered ruins',
+  profileEmpty: 'No expeditions logged yet.',
+
   distance: (km: number) =>
     km < 1
       ? `${Math.round(km * 1000)} m away — basically touching it`

@@ -98,12 +98,19 @@ export default function FeedScreen() {
           <Text style={styles.title}>{copy.feedTitle}</Text>
           <Text style={styles.subtitle}>{copy.feedSubtitle}</Text>
         </View>
+        <Pressable style={styles.headerButton} onPress={() => router.push('/community')}>
+          <Text style={styles.headerButtonText}>🏆</Text>
+        </Pressable>
         <Pressable style={styles.headerButton} onPress={() => router.push('/search')}>
           <Text style={styles.headerButtonText}>🔍</Text>
         </Pressable>
         {username ? (
-          <Pressable style={styles.headerButton} onPress={logout}>
-            <Text style={styles.headerAuthText}>{username} ✕</Text>
+          <Pressable
+            style={styles.headerButton}
+            onPress={() => router.push(`/user/${username}`)}
+            onLongPress={logout}
+          >
+            <Text style={styles.headerAuthText}>{username}</Text>
           </Pressable>
         ) : (
           <Pressable style={styles.headerButton} onPress={() => router.push('/login')}>

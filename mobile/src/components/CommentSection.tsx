@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -8,7 +9,7 @@ import {
   View,
 } from 'react-native';
 
-import { fetchComments, postComment } from '../api/sites';
+import { fetchComments, postComment, voteComment } from '../api/sites';
 import { copy } from '../copy';
 import { colors, spacing } from '../theme';
 import type { Comment } from '../types';
@@ -20,9 +21,29 @@ interface Props {
 }
 
 export function CommentSection({ siteId, loggedIn, onRequireLogin }: Props) {
+  const router = useRouter();
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [draft, setDraft] = useState('');
   const [posting, setPosting] = useState(false);
+
+  async function upvote(comment: Comment) {
+    if (!loggedIn) {
+      onRequireLogin();
+      return;
+    }
+    try {
+      const result = await voteComment(comment.id);
+      setComments((current) =>
+        (current ?? []).map((c) =>
+          c.id === comment.id
+            ? { ...c, upvotes: result.upvotes, upvoted_by_me: result.upvoted }
+            : c
+        )
+      );
+    } catch {
+      // vote didn't land; leave the count alone
+    }
+  }
 
   useEffect(() => {
     fetchComments(siteId)
@@ -70,7 +91,22 @@ export function CommentSection({ siteId, loggedIn, onRequireLogin }: Props) {
       ) : (
         comments.map((comment) => (
           <View key={comment.id} style={styles.comment}>
-            <Text style={styles.author}>{comment.username}</Text>
+            <View style={styles.commentHeader}>
+              <Pressable onPress={() => router.push(`/user/${comment.username}`)}>
+                <Text style={styles.author}>{comment.username}</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.voteButton, comment.upvoted_by_me && styles.voteButtonActive]}
+                onPress={() => upvote(comment)}
+                hitSlop={6}
+              >
+                <Text
+                  style={[styles.voteText, comment.upvoted_by_me && styles.voteTextActive]}
+                >
+                  ▲ {comment.upvotes}
+                </Text>
+              </Pressable>
+            </View>
             <Text style={styles.text}>{comment.text}</Text>
           </View>
         ))
@@ -110,6 +146,21 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.md,
   },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   author: { fontWeight: '700', color: colors.accentDark, fontSize: 13 },
   text: { color: colors.ink, marginTop: 2, lineHeight: 19 },
+  voteButton: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+  },
+  voteButtonActive: { backgroundColor: colors.gold, borderColor: colors.gold },
+  voteText: { color: colors.faded, fontSize: 12, fontWeight: '700' },
+  voteTextActive: { color: '#fff' },
 });
